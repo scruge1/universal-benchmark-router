@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fold5:model-benchmark-profile:v1",
+  "title": "Task and scaling aware model benchmark profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profile_id", "configuration", "configuration_sha256", "suite_id", "suite_sha256", "route", "capabilities", "trust_zones", "observed_at", "expires_at", "scaling", "task_scores", "performance", "reliability", "resource_cost", "hard_gates_passed", "evidence_sha256", "authority"],
+  "properties": {
+    "schema": {"const": "model-benchmark-profile/v1"},
+    "profile_id": {"type": "string", "minLength": 1},
+    "configuration": {"type": "object"},
+    "configuration_sha256": {"$ref": "#/$defs/sha256"},
+    "suite_id": {"type": "string", "minLength": 1},
+    "suite_sha256": {"$ref": "#/$defs/sha256"},
+    "route": {"type": "object"},
+    "capabilities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "trust_zones": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "scaling": {"type": "object"},
+    "task_scores": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "performance": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "reliability": {"type": "object"},
+    "resource_cost": {"type": "object"},
+    "hard_gates_passed": {"type": "boolean"},
+    "evidence_sha256": {"$ref": "#/$defs/sha256"},
+    "authority": {"const": {"scope": "saved_benchmark_profile_only", "may_claim_unmeasured": false, "may_publish_route": false}}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+  "$comment": "The semantic validator binds configuration and suite hashes, scaling topology, task scores, performance envelopes, and authority."
+}

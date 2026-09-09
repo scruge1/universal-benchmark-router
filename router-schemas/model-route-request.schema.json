@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fold5:model-route-request:v1",
+  "title": "Constraint-first model route request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "as_of", "suite_id", "suite_sha256", "task_requirements", "capabilities", "workload_id", "context_tokens", "output_tokens", "concurrency", "trust_zone", "allowed_scale_axes", "limits", "objective_order", "authority"],
+  "properties": {
+    "schema": {"const": "model-route-request/v1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "format": "date-time"},
+    "suite_id": {"type": "string", "minLength": 1},
+    "suite_sha256": {"$ref": "#/$defs/sha256"},
+    "task_requirements": {"type": "array", "items": {"type": "object"}},
+    "capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "workload_id": {"type": "string", "minLength": 1},
+    "context_tokens": {"type": "integer", "minimum": 1},
+    "output_tokens": {"type": "integer", "minimum": 1},
+    "concurrency": {"type": "integer", "minimum": 1},
+    "trust_zone": {"type": "string", "minLength": 1},
+    "allowed_scale_axes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["vertical", "horizontal", "hybrid"]}},
+    "limits": {"type": "object"},
+    "objective_order": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["quality_score", "goodput_tokens_per_second", "e2e_p95_ms", "energy_joules_per_output_token", "gpu_count", "host_ram_bytes", "startup_seconds"]}},
+    "authority": {"const": {"scope": "offline_route_selection_only", "may_contact_endpoint": false, "may_mutate_services": false}}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+  "$comment": "The semantic validator enforces exact task floors, resource limits, and objective order."
+}

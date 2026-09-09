@@ -1,0 +1,20 @@
+include LICENSE
+include AGENTS.md
+include README.md
+include CONTRIBUTING-PORTABLE.md
+include requirements-ci.txt
+include verify_portable_router_boundary.py
+include test_universal_model_router.py
+include test_universal_benchmark_exchange.py
+include test_universal_benchmark_registry.py
+include test_verify_portable_router_boundary.py
+include test_repository_contract.py
+include SOURCE-MANIFEST.json
+recursive-include tools *.py
+recursive-include examples *.md *.json
+prune router
+include router/README.md
+include router/benchmark-capability-contract-v2.json
+include router/standard-task-suite-v1.json
+recursive-include router-schemas *.json
+global-exclude */.pytest_cache/*

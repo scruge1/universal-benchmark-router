@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "universal-benchmark-router"
+version = "0.1.0"
+description = "Offline evidence registry and configuration router for portable model benchmarks"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["cryptography>=41"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.scripts]
+universal-router = "universal_router_cli:main"
+
+[tool.setuptools]
+py-modules = [
+  "universal_model_router",
+  "universal_benchmark_exchange",
+  "universal_benchmark_registry",
+  "universal_router_cli",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+addopts = "-p no:brownie"

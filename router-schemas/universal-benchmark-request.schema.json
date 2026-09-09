@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fold5:universal-benchmark-request:v1",
+  "title": "Portable universal benchmark request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "issued_at", "expires_at", "issuer", "capability_contract", "lane", "task_pack", "test_cells", "comparison_axis", "trial_policy", "required_metrics", "contribution_policy", "attestation", "authority"],
+  "properties": {
+    "schema": {"const": "universal-benchmark-request/v1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "issuer": {"type": "object"},
+    "capability_contract": {"type": "object"},
+    "lane": {"type": "object"},
+    "task_pack": {"type": "object"},
+    "test_cells": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "comparison_axis": {"enum": ["model_variant", "fine_tune", "quantization", "context", "temperature", "top_p", "engine", "within_host_vertical", "cross_host_horizontal", "cross_site_evidence"]},
+    "trial_policy": {"type": "object"},
+    "required_metrics": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "contribution_policy": {"type": "object"},
+    "attestation": {"type": "object"},
+    "authority": {"const": {"scope": "saved_benchmark_request_only", "may_execute_live": false, "may_accept_submission": false, "may_publish": false}}
+  }
+}

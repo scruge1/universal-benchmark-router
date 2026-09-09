@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fold5:model-task-suite:v1",
+  "title": "Versioned standardized model task suite",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "suite_id", "version", "created_at", "sources", "cases", "workloads", "authority"],
+  "properties": {
+    "schema": {"const": "model-task-suite/v1"},
+    "suite_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "sources": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "cases": {
+      "type": "array", "minItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["case_id", "family", "skill_tags", "prompt", "prompt_sha256", "checker", "max_output_tokens"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1},
+          "family": {"enum": ["chat", "instruction_following", "coding", "niche_coding", "mathematics", "reasoning", "structured_output", "tool_use", "tool_recovery", "long_context", "safety"]},
+          "skill_tags": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "prompt": {"type": "string", "minLength": 1},
+          "prompt_sha256": {"$ref": "#/$defs/sha256"},
+          "checker": {
+            "type": "object", "additionalProperties": false,
+            "required": ["kind", "specification", "specification_sha256", "deterministic"],
+            "properties": {
+              "kind": {"enum": ["exact", "json_schema", "regex", "unit_test", "rubric"]},
+              "specification": {"type": "string", "minLength": 1},
+              "specification_sha256": {"$ref": "#/$defs/sha256"},
+              "deterministic": {"type": "boolean"}
+            }
+          },
+          "max_output_tokens": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "workloads": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["workload_id", "shape", "context_tokens", "output_tokens", "concurrency", "prefix_share_ratio", "repetitions"],
+        "properties": {
+          "workload_id": {"type": "string", "minLength": 1},
+          "shape": {"enum": ["closed_loop", "burst", "mixed"]},
+          "context_tokens": {"type": "integer", "minimum": 1},
+          "output_tokens": {"type": "integer", "minimum": 1},
+          "concurrency": {"type": "integer", "minimum": 1},
+          "prefix_share_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+          "repetitions": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "authority": {"const": {"scope": "saved_task_suite_only", "may_execute_live": false}}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

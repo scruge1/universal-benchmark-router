@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fold5:model-test-configuration:v1",
+  "title": "Complete model test configuration snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "configuration_id", "captured_at", "artifact", "engine", "hardware", "placement", "generation", "workload", "background_state", "evidence", "authority"],
+  "properties": {
+    "schema": {"const": "model-test-configuration/v1"},
+    "configuration_id": {"type": "string", "minLength": 1},
+    "captured_at": {"type": "string", "format": "date-time"},
+    "artifact": {"type": "object"},
+    "engine": {"type": "object"},
+    "hardware": {"type": "object"},
+    "placement": {"type": "object"},
+    "generation": {"type": "object"},
+    "workload": {"type": "object"},
+    "background_state": {"type": "object"},
+    "evidence": {"type": "object"},
+    "authority": {"const": {"scope": "saved_test_configuration_only", "may_execute_live": false, "may_publish_route": false}}
+  },
+  "$comment": "The standard-library semantic validator enforces exact nested keys, hashes, GPU order, and saved-data authority."
+}

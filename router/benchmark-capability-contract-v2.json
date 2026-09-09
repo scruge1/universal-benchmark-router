@@ -1,0 +1,201 @@
+{
+  "schema": "benchmark-capability-contract/v2",
+  "contract_id": "prd156-universal-model-evaluation",
+  "version": "2.0.0",
+  "created_at": "2026-09-08T15:45:38Z",
+  "sources": [
+    {"source_id":"local-suite-v1","kind":"local_pinned","locator":"prototypes/control-plane/router/standard-task-suite-v1.json","revision":"c1a45c49da0c8218e601345f4b01dba45b39ed8f02e101d71f53c0b13e5c3e23","use":"cheap deterministic single-turn smoke"},
+    {"source_id":"local-campaign-plan","kind":"local_pinned","locator":"artifacts/h6-post-download-router-benchmark-plan.md","revision":"ec23e22810d56efd6e6f4bfb2ab9a5a43b2d10b4a68e847f31bceccd73af3611","use":"configuration identity, workload, restoration, and promotion controls"},
+    {"source_id":"bfcl-v4","kind":"official_repository","locator":"https://github.com/EnlightenedAI/BFCL","revision":"6ea57973c7a6097fd7c5915698c54c17c5b1b6c8","use":"single, parallel, multi-turn, agentic, recovery, memory, hallucination, and format-sensitive tool calling"},
+    {"source_id":"tau2-bench","kind":"official_repository","locator":"https://github.com/sierra-research/tau2-bench","revision":"672227c6b6676edc20d57ea53b7000262aae77b9","use":"multi-turn tool-agent-user transactions and policy compliance"},
+    {"source_id":"swe-bench","kind":"official_repository","locator":"https://github.com/SWE-bench/SWE-bench","revision":"02e7a74ffd0b707aab73d203fe87bdc7c76afc8e","use":"repository issue resolution with executable tests"},
+    {"source_id":"terminal-bench","kind":"official_repository","locator":"https://github.com/harbor-framework/terminal-bench","revision":"83c7a6172d629c6575b785ab12c8db787bb2e323","use":"sandboxed end-to-end terminal tasks"},
+    {"source_id":"tua-bench","kind":"official_repository","locator":"https://github.com/facebookresearch/TUA-Bench","revision":"3497fd320abcafaf4797424192c891a593fd7964","use":"real terminal-use workflows with repeat success evidence"},
+    {"source_id":"ruler","kind":"official_repository","locator":"https://github.com/NVIDIA/RULER","revision":"c3f5e3b4f87f97e048793bb510a3a6b19a46bf3a","use":"effective long-context tests beyond simple retrieval"},
+    {"source_id":"livebench","kind":"official_repository","locator":"https://github.com/livebench/livebench","revision":"bc5164c1841e3cf099b4fb48c59b49ee0a734bef","use":"objective contamination-aware reasoning and coding tasks"},
+    {"source_id":"lm-eval","kind":"official_repository","locator":"https://github.com/EleutherAI/lm-evaluation-harness","revision":"b954108c9baaaa934b4ad842033b31a97ee30816","use":"pinned mathematics, knowledge, and reasoning task execution"},
+    {"source_id":"evalplus","kind":"official_repository","locator":"https://github.com/evalplus/evalplus","revision":"26d6d00bb1fd0fa37f39c99d5290da67891d1c5e","use":"executable HumanEval+ and MBPP+ function-level coding"}
+  ],
+  "evidence_scopes": [
+    {"scope_id":"raw_model","meaning":"model response under an exact prompt and generation policy; no tools or harness loop"},
+    {"scope_id":"served_model_configuration","meaning":"model plus exact quant, engine, context, sampling, placement, and server configuration"},
+    {"scope_id":"harnessed_agent_configuration","meaning":"served configuration plus exact harness, system prompt, tools, policies, memory, compaction, and retry loop"}
+  ],
+  "tiers": [
+    {"tier":0,"name":"identity_and_fit","purpose":"verify bytes, lineage, runtime, template, tokenizer, fit, restoration, and unsupported states"},
+    {"tier":1,"name":"performance_screen","purpose":"cheap pp, tg, TTFT, TPOT, memory, energy, thermal, startup, and restoration screen"},
+    {"tier":2,"name":"core_smoke","purpose":"cheap deterministic single-turn correctness and protocol compatibility"},
+    {"tier":3,"name":"capability_qualification","purpose":"objective reasoning, coding, long-context, and function-call qualification for shortlisted configurations"},
+    {"tier":4,"name":"agent_trajectory","purpose":"real tools, multi-turn recovery, repository and terminal work, long-horizon state, and resume reliability"},
+    {"tier":5,"name":"service_envelope","purpose":"concurrency, sustained reliability, co-tenancy, power, topology, and failure recovery for route finalists"}
+  ],
+  "capability_lanes": [
+    {
+      "lane_id":"performance_microbench",
+      "dimension":"performance",
+      "evidence_scope":"served_model_configuration",
+      "tier":1,
+      "benchmark_source_ids":["local-campaign-plan"],
+      "required_subtests":["pp512","tg128","startup","memory","energy","thermal","restoration"],
+      "objective_checkers":["numeric_conservation","host_state_verifier"],
+      "minimum_trials":3,
+      "claim_cap":"performance_screen_only"
+    },
+    {
+      "lane_id":"single_turn_core",
+      "dimension":"single_turn_correctness",
+      "evidence_scope":"raw_model",
+      "tier":2,
+      "benchmark_source_ids":["local-suite-v1"],
+      "required_subtests":["instruction_following","structured_output","basic_reasoning","basic_math","single_function_coding"],
+      "objective_checkers":["exact","schema","unit_test"],
+      "minimum_trials":3,
+      "claim_cap":"single_turn_smoke_only"
+    },
+    {
+      "lane_id":"native_tool_calling",
+      "dimension":"tool_calling",
+      "evidence_scope":"served_model_configuration",
+      "tier":3,
+      "benchmark_source_ids":["bfcl-v4"],
+      "required_subtests":["single_call","parallel_calls","multiple_calls","missing_tool","wrong_argument","format_sensitivity","tool_hallucination"],
+      "objective_checkers":["ast_match","executable_call_match","illegal_call_count"],
+      "minimum_trials":3,
+      "claim_cap":"native_tool_protocol_qualification"
+    },
+    {
+      "lane_id":"transactional_tool_agent",
+      "dimension":"tool_recovery",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["bfcl-v4","tau2-bench"],
+      "required_subtests":["multi_turn","multi_step","timeout","rate_limit","malformed_result","permission_denied","partial_write","non_idempotent_guard","retry_budget","memory_recall","policy_compliance"],
+      "objective_checkers":["environment_state","trajectory_policy","tool_argument_match","unsupported_success_rejection"],
+      "minimum_trials":3,
+      "claim_cap":"exact_harness_tool_agent_reliability"
+    },
+    {
+      "lane_id":"advanced_reasoning",
+      "dimension":"advanced_reasoning",
+      "evidence_scope":"raw_model",
+      "tier":3,
+      "benchmark_source_ids":["lm-eval","livebench"],
+      "required_subtests":["gpqa_diamond","math_500","aime","constraint_composition","counterfactual_reasoning"],
+      "objective_checkers":["exact_answer","executable_math","dataset_ground_truth"],
+      "minimum_trials":3,
+      "claim_cap":"reasoning_profile_for_exact_generation_policy"
+    },
+    {
+      "lane_id":"function_coding",
+      "dimension":"coding",
+      "evidence_scope":"raw_model",
+      "tier":3,
+      "benchmark_source_ids":["evalplus","livebench"],
+      "required_subtests":["humaneval_plus","mbpp_plus","recent_code_generation","multiple_languages"],
+      "objective_checkers":["sandbox_unit_tests","compile_and_run"],
+      "minimum_trials":3,
+      "claim_cap":"function_level_coding_profile"
+    },
+    {
+      "lane_id":"repository_coding",
+      "dimension":"repository_coding",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["swe-bench"],
+      "required_subtests":["issue_localization","multi_file_patch","regression_tests","failed_test_recovery","clean_worktree_discipline"],
+      "objective_checkers":["containerized_repository_tests","patch_scope_verifier"],
+      "minimum_trials":3,
+      "claim_cap":"exact_harness_repository_resolution_profile"
+    },
+    {
+      "lane_id":"terminal_operations",
+      "dimension":"terminal_work",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["terminal-bench","tua-bench"],
+      "required_subtests":["inspect","configure","build","debug","recover","verify","no_unrequested_mutation"],
+      "objective_checkers":["sandbox_state_tests","task_success","all_trials_success"],
+      "minimum_trials":3,
+      "claim_cap":"exact_harness_terminal_profile"
+    },
+    {
+      "lane_id":"long_context_correctness",
+      "dimension":"long_context",
+      "evidence_scope":"served_model_configuration",
+      "tier":3,
+      "benchmark_source_ids":["ruler"],
+      "required_subtests":["4096","8192","16384","32768","multi_hop_tracing","aggregation","variable_tracking"],
+      "objective_checkers":["exact_answer","effective_context_curve"],
+      "minimum_trials":3,
+      "claim_cap":"measured_effective_context_only"
+    },
+    {
+      "lane_id":"long_horizon_workflow",
+      "dimension":"long_horizon",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["terminal-bench","tua-bench","swe-bench"],
+      "required_subtests":["10_step","25_step","50_step","checkpoint_resume","context_compaction","stale_state_rejection","loop_detection","fault_recovery","final_state_verification"],
+      "objective_checkers":["trajectory_conservation","checkpoint_replay","final_state_tests","loop_budget"],
+      "minimum_trials":3,
+      "claim_cap":"exact_harness_long_horizon_reliability"
+    },
+    {
+      "lane_id":"multi_agent_coordination",
+      "dimension":"multi_agent",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["local-campaign-plan","terminal-bench","tua-bench"],
+      "required_subtests":["task_decomposition","dependency_order","safe_parallelism","handoff_context","conflicting_results","worker_failure_reassignment","duplicate_work_prevention","verifier_separation","final_synthesis_conservation"],
+      "objective_checkers":["task_graph_conservation","artifact_hash_join","receipt_ownership","final_state_tests"],
+      "minimum_trials":3,
+      "claim_cap":"exact_multi_agent_orchestrator_profile"
+    },
+    {
+      "lane_id":"research_evidence",
+      "dimension":"research",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["local-campaign-plan"],
+      "required_subtests":["source_discovery","locator_accuracy","claim_entailment","contradiction_retention","date_freshness","unsupported_claim_rejection"],
+      "objective_checkers":["pinned_source_replay","claim_evidence_matrix","citation_locator_check"],
+      "minimum_trials":3,
+      "claim_cap":"source_bound_research_profile"
+    },
+    {
+      "lane_id":"authority_and_safety",
+      "dimension":"authority_safety",
+      "evidence_scope":"harnessed_agent_configuration",
+      "tier":4,
+      "benchmark_source_ids":["local-campaign-plan"],
+      "required_subtests":["tool_output_injection","scope_escalation","secret_request","destructive_ambiguity","stale_grant","replay_grant","stop_and_restore"],
+      "objective_checkers":["forbidden_action_count","authority_trace","host_state_verifier"],
+      "minimum_trials":3,
+      "claim_cap":"exact_harness_authority_safety_profile"
+    }
+  ],
+  "required_metrics": [
+    "issued","completed","correct","failed","unsupported","pass_at_1","pass_at_k","all_trials_success","tool_precision","tool_recall","illegal_tool_calls","policy_violations","steps","retries","loops","context_compactions","resume_success","prompt_tokens","reasoning_tokens","output_tokens","ttft","tpot","end_to_end_latency","goodput","energy","peak_gpu_memory","peak_host_memory","thermal_events","xids","restoration_errors"
+  ],
+  "promotion_rules": [
+    "performance_microbench_cannot_promote_quality_or_agent_capability",
+    "long_context_correctness_cannot_promote_long_horizon_reliability",
+    "raw_model_results_cannot_promote_a_harnessed_agent_claim",
+    "harnessed_results_bind_the_exact_harness_system_prompt_tools_memory_compaction_and_retry_policy",
+    "tool_capability_requires_executed_calls_and_environment_state_not_a_text_description",
+    "objective_checkers_take_priority_over_model_judges",
+    "every_route_claim_requires_an_applicable_lane_result_for_the_exact_configuration",
+    "unsupported_is_recorded_and_not_scored_as_zero_or_omitted",
+    "source_or_dataset_revision_drift_invalidates_comparability",
+    "speed_and_quality_are_ranked_per_capability_never_as_one_global_model_rank"
+  ],
+  "execution_policy": {
+    "screen_all_configs_through_tier": 2,
+    "shortlist_before_tier": 3,
+    "route_finalists_only_from_tier": 4,
+    "service_envelope_only_after_capability_floor": true,
+    "one_axis_change_per_comparison": true,
+    "separate_prearm_and_live_authority_required": true
+  },
+  "authority": {"scope":"offline_capability_contract_only","may_execute_live":false,"may_publish_route":false}
+}

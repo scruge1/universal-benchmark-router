@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:fold5:benchmark-capability-contract:v2",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema","contract_id","version","created_at","sources","evidence_scopes","tiers","capability_lanes","required_metrics","promotion_rules","execution_policy","authority"],
+  "properties":{
+    "schema":{"const":"benchmark-capability-contract/v2"},
+    "contract_id":{"type":"string","minLength":1},
+    "version":{"const":"2.0.0"},
+    "created_at":{"type":"string","format":"date-time"},
+    "sources":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["source_id","kind","locator","revision","use"],"properties":{"source_id":{"type":"string","minLength":1},"kind":{"enum":["local_pinned","official_repository"]},"locator":{"type":"string","minLength":1},"revision":{"type":"string","pattern":"^[0-9a-f]{40,64}$"},"use":{"type":"string","minLength":1}}}},
+    "evidence_scopes":{"type":"array","minItems":3,"items":{"type":"object","additionalProperties":false,"required":["scope_id","meaning"],"properties":{"scope_id":{"enum":["raw_model","served_model_configuration","harnessed_agent_configuration"]},"meaning":{"type":"string","minLength":1}}}},
+    "tiers":{"type":"array","minItems":6,"maxItems":6,"items":{"type":"object","additionalProperties":false,"required":["tier","name","purpose"],"properties":{"tier":{"type":"integer","minimum":0,"maximum":5},"name":{"type":"string","minLength":1},"purpose":{"type":"string","minLength":1}}}},
+    "capability_lanes":{"type":"array","minItems":10,"items":{"type":"object","additionalProperties":false,"required":["lane_id","dimension","evidence_scope","tier","benchmark_source_ids","required_subtests","objective_checkers","minimum_trials","claim_cap"],"properties":{"lane_id":{"type":"string","minLength":1},"dimension":{"type":"string","minLength":1},"evidence_scope":{"enum":["raw_model","served_model_configuration","harnessed_agent_configuration"]},"tier":{"type":"integer","minimum":1,"maximum":4},"benchmark_source_ids":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1}},"required_subtests":{"type":"array","minItems":2,"uniqueItems":true,"items":{"type":"string","minLength":1}},"objective_checkers":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1}},"minimum_trials":{"type":"integer","minimum":3},"claim_cap":{"type":"string","minLength":1}}}},
+    "required_metrics":{"type":"array","minItems":20,"uniqueItems":true,"items":{"type":"string","minLength":1}},
+    "promotion_rules":{"type":"array","minItems":8,"uniqueItems":true,"items":{"type":"string","minLength":1}},
+    "execution_policy":{"type":"object","additionalProperties":false,"required":["screen_all_configs_through_tier","shortlist_before_tier","route_finalists_only_from_tier","service_envelope_only_after_capability_floor","one_axis_change_per_comparison","separate_prearm_and_live_authority_required"],"properties":{"screen_all_configs_through_tier":{"const":2},"shortlist_before_tier":{"const":3},"route_finalists_only_from_tier":{"const":4},"service_envelope_only_after_capability_floor":{"const":true},"one_axis_change_per_comparison":{"const":true},"separate_prearm_and_live_authority_required":{"const":true}}},
+    "authority":{"const":{"scope":"offline_capability_contract_only","may_execute_live":false,"may_publish_route":false}}
+  }
+}

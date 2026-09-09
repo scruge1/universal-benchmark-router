@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fold5:universal-benchmark-result-envelope:v1",
+  "title": "Request-bound universal benchmark result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "result_id", "request_id", "request_sha256", "cell_id", "observed_context_tokens", "configuration", "contribution", "attestation", "authority"],
+  "properties": {
+    "schema": {"const": "universal-benchmark-result-envelope/v1"},
+    "result_id": {"type": "string", "minLength": 1},
+    "request_id": {"type": "string", "minLength": 1},
+    "request_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "cell_id": {"type": "string", "minLength": 1},
+    "observed_context_tokens": {"type": "integer", "minimum": 1},
+    "configuration": {"type": "object"},
+    "contribution": {"type": "object"},
+    "attestation": {"type": "object"},
+    "authority": {"const": {"scope": "saved_request_bound_result_only", "may_enter_catalog": false, "may_publish": false}}
+  }
+}

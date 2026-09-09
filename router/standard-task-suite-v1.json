@@ -1,0 +1,197 @@
+{
+  "schema": "model-task-suite/v1",
+  "suite_id": "rig-standard-task-suite",
+  "version": "1.0.0",
+  "created_at": "2026-09-07T22:20:08Z",
+  "sources": [
+    {
+      "kind": "local_fixture",
+      "name": "PRD-156 deterministic task cases",
+      "use": "Small repeatable capability checks for every tested configuration"
+    },
+    {
+      "kind": "official_framework",
+      "locator": "https://github.com/EleutherAI/lm-evaluation-harness",
+      "use": "Later external task imports must pin task configuration and source revision"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "niche-python-ast-001",
+      "family": "niche_coding",
+      "skill_tags": ["python", "ast", "safe-static-analysis"],
+      "prompt": "Write a Python function called collect_calls(source) that returns function names called in source order. Use ast. Do not execute the source. Return only the function code.",
+      "prompt_sha256": "5d696b6a720fd5fe152ea01973cb5d7fc671746ce5b81f2fe8aaa82dc7fe4b0e",
+      "checker": {
+        "kind": "unit_test",
+        "specification": "Parse the returned function, run it on \"x=f(); obj.g(1); f()\", and require [\"f\",\"obj.g\",\"f\"].",
+        "specification_sha256": "1a78479ba0981f5de843385c2fdfe648bee35c26677d467e4babfaa32bb8eaee",
+        "deterministic": true
+      },
+      "max_output_tokens": 384
+    },
+    {
+      "case_id": "niche-sql-window-001",
+      "family": "niche_coding",
+      "skill_tags": ["postgresql", "window-functions", "determinism"],
+      "prompt": "Write one PostgreSQL query that returns each device_id and its latest reading by observed_at, with reading_id as the deterministic tie-breaker. Table: readings(device_id, reading_id, observed_at, value). Return SQL only.",
+      "prompt_sha256": "71923ab873c7d79607cf47efe6ed90596c65cd6fd7d51d102c27d36821e64110",
+      "checker": {
+        "kind": "regex",
+        "specification": "Require ROW_NUMBER or DISTINCT ON, partition/device ordering, observed_at descending, and reading_id descending.",
+        "specification_sha256": "cf49d8da5ad8bca9c171d10ff48e27de67cde809eb1538804206644c24878d33",
+        "deterministic": true
+      },
+      "max_output_tokens": 256
+    },
+    {
+      "case_id": "niche-json-patch-001",
+      "family": "niche_coding",
+      "skill_tags": ["rfc6902", "json", "configuration"],
+      "prompt": "Return an RFC 6902 JSON Patch that changes /policy/max_retries from 2 to 4 and removes /legacy. Return only the JSON array.",
+      "prompt_sha256": "5ad2502ee52997f2ccee6da6ae16c5ad1d62e20efcacdf85e9a84e85021c4668",
+      "checker": {
+        "kind": "exact",
+        "specification": "[{\"op\":\"replace\",\"path\":\"/policy/max_retries\",\"value\":4},{\"op\":\"remove\",\"path\":\"/legacy\"}]",
+        "specification_sha256": "256b57a156a8ad300abd4a1dbe712ce0e6c538ef261b3437e4fb542162951ed6",
+        "deterministic": true
+      },
+      "max_output_tokens": 128
+    },
+    {
+      "case_id": "math-rational-001",
+      "family": "mathematics",
+      "skill_tags": ["fractions", "exact-arithmetic"],
+      "prompt": "Compute exactly: (7/12 - 5/18) / (11/9). Return only the reduced fraction.",
+      "prompt_sha256": "424b629bf5feb77bdbba5eab14cdb975e346e3725be6d0d29e188f4d8d01bb6d",
+      "checker": {
+        "kind": "exact",
+        "specification": "1/4",
+        "specification_sha256": "f70b94aeb67de2a5eb4bd8c2ea85128f13776cb545a661abe422b378a6cf3099",
+        "deterministic": true
+      },
+      "max_output_tokens": 32
+    },
+    {
+      "case_id": "math-modular-001",
+      "family": "mathematics",
+      "skill_tags": ["modular-arithmetic"],
+      "prompt": "Find the least non-negative integer x such that 17x is congruent to 1 modulo 43. Return only x.",
+      "prompt_sha256": "2020329df44827e28d74165dd2cd49002a7e58129f27f4d2f0cfb0f682353f04",
+      "checker": {
+        "kind": "exact",
+        "specification": "38",
+        "specification_sha256": "aea92132c4cbeb263e6ac2bf6c183b5d81737f179f21efdc5863739672f0f470",
+        "deterministic": true
+      },
+      "max_output_tokens": 32
+    },
+    {
+      "case_id": "math-rate-001",
+      "family": "mathematics",
+      "skill_tags": ["rates", "weighted-average"],
+      "prompt": "A decoder emits 1536 tokens in 96 seconds, then 1024 tokens in 80 seconds. Compute the combined token rate. Return only a decimal with two places.",
+      "prompt_sha256": "a607af9ecfeebd9d6b66453ed4372e0458ca29b1bd0b47ffd30f43f93c6edb31",
+      "checker": {
+        "kind": "exact",
+        "specification": "14.55",
+        "specification_sha256": "bcbd954bc02a20e8f5590ad5c7e5282e921ea8334bee0d130be4aa1c2ab025fc",
+        "deterministic": true
+      },
+      "max_output_tokens": 32
+    },
+    {
+      "case_id": "reasoning-order-001",
+      "family": "reasoning",
+      "skill_tags": ["constraint-satisfaction", "ordering"],
+      "prompt": "Five jobs A,B,C,D,E must be ordered. A is before C. D is immediately after B. E is after C. B is before A. Return the unique order as comma-separated letters.",
+      "prompt_sha256": "fe37cd4ece532a731f063d5fae69462660f988d701d2bda0e47fb19b2ab08e3b",
+      "checker": {
+        "kind": "exact",
+        "specification": "B,D,A,C,E",
+        "specification_sha256": "9467bc25924e0fb05df08f3ce0cf87b0007c51007ae2c8d752943c9f88ec8494",
+        "deterministic": true
+      },
+      "max_output_tokens": 32
+    },
+    {
+      "case_id": "reasoning-consistency-001",
+      "family": "reasoning",
+      "skill_tags": ["propositional-logic", "consistency"],
+      "prompt": "Statements: (1) Exactly one of P and Q is true. (2) If P then R. (3) R is false. State truth values for P and Q as JSON with lowercase booleans only.",
+      "prompt_sha256": "2740fc0a4dea2f0e74cc9c4e26ad6ca83c48be227fd48b6b35e5a846c5f7b79f",
+      "checker": {
+        "kind": "exact",
+        "specification": "{\"P\":false,\"Q\":true}",
+        "specification_sha256": "f5aa09bb0509ca1fbdd743fc34d69f33802b3ee047e682d9cd8ddc756f8a9e42",
+        "deterministic": true
+      },
+      "max_output_tokens": 64
+    },
+    {
+      "case_id": "reasoning-resource-001",
+      "family": "reasoning",
+      "skill_tags": ["resource-planning", "capacity"],
+      "prompt": "A host has five 24 GiB GPUs. One model needs 46 GiB of weights plus 10 GiB KV cache total, evenly split, with 2 GiB safety margin per used GPU. What is the minimum GPU count? Return only the integer.",
+      "prompt_sha256": "5f3ec3673b228ce95fd188b2a56198b5adc6cdc1baa7dcc50844f21a10670ca5",
+      "checker": {
+        "kind": "exact",
+        "specification": "3",
+        "specification_sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+        "deterministic": true
+      },
+      "max_output_tokens": 32
+    },
+    {
+      "case_id": "tool-recovery-001",
+      "family": "tool_recovery",
+      "skill_tags": ["http-429", "retry", "honest-state"],
+      "prompt": "A tool call failed with HTTP 429 and Retry-After: 7. The operation is idempotent and has a 30-second deadline. Return JSON with action, wait_seconds, and reason. Do not invent success.",
+      "prompt_sha256": "e0aee9b7a375c27994d27407ef0ea844c4ca03b15da2d426b2fc3f8260c37f39",
+      "checker": {
+        "kind": "json_schema",
+        "specification": "Require {\"action\":\"retry\",\"wait_seconds\":7,\"reason\":string}; reject any success claim.",
+        "specification_sha256": "760ff0cb0cbbda6cdf860d067329900c01f71a83d16d41f251e1798b47e40cd2",
+        "deterministic": true
+      },
+      "max_output_tokens": 128
+    },
+    {
+      "case_id": "structured-output-001",
+      "family": "structured_output",
+      "skill_tags": ["json", "operator-status"],
+      "prompt": "Return only JSON for an alert with severity warning, action_required false, and message \"Temperature recovered\".",
+      "prompt_sha256": "299e9eb09c097fc55c432265c929649a552e60796eec5dd64d778da9730f8ef3",
+      "checker": {
+        "kind": "exact",
+        "specification": "{\"severity\":\"warning\",\"action_required\":false,\"message\":\"Temperature recovered\"}",
+        "specification_sha256": "d5d2a0c6572c84b9224e08d047bcfa0bbdf6b73dd3cda57e69615ffdb8bf3a32",
+        "deterministic": true
+      },
+      "max_output_tokens": 128
+    },
+    {
+      "case_id": "instruction-format-001",
+      "family": "instruction_following",
+      "skill_tags": ["exact-format", "concise-output"],
+      "prompt": "Return exactly three lines. Line 1: alpha. Line 2: beta. Line 3: gamma. Add nothing else.",
+      "prompt_sha256": "ec269b63a4308b864a87f881a5932952878703b52e321a8d9ca580706fd44915",
+      "checker": {
+        "kind": "exact",
+        "specification": "alpha\nbeta\ngamma",
+        "specification_sha256": "f3220283d05d1ff2ae350cfe9e0e367cb5aef46e10efb203c8a53c678e2218c8",
+        "deterministic": true
+      },
+      "max_output_tokens": 32
+    }
+  ],
+  "workloads": [
+    {"workload_id": "latency-short-c1", "shape": "closed_loop", "context_tokens": 512, "output_tokens": 64, "concurrency": 1, "prefix_share_ratio": 0, "repetitions": 3},
+    {"workload_id": "coding-mid-c1", "shape": "closed_loop", "context_tokens": 4096, "output_tokens": 512, "concurrency": 1, "prefix_share_ratio": 0.25, "repetitions": 3},
+    {"workload_id": "reasoning-mid-c4", "shape": "mixed", "context_tokens": 2048, "output_tokens": 256, "concurrency": 4, "prefix_share_ratio": 0.25, "repetitions": 3},
+    {"workload_id": "throughput-mid-c8", "shape": "closed_loop", "context_tokens": 4096, "output_tokens": 256, "concurrency": 8, "prefix_share_ratio": 0.5, "repetitions": 3},
+    {"workload_id": "burst-mid-c16", "shape": "burst", "context_tokens": 4096, "output_tokens": 128, "concurrency": 16, "prefix_share_ratio": 0.5, "repetitions": 3},
+    {"workload_id": "long-context-c2", "shape": "mixed", "context_tokens": 32768, "output_tokens": 256, "concurrency": 2, "prefix_share_ratio": 0.75, "repetitions": 3}
+  ],
+  "authority": {"scope": "saved_task_suite_only", "may_execute_live": false}
+}
