@@ -45,13 +45,26 @@ jobs:
       - name: Run static and bytecode checks
         run: |
           ruff check .
-          python -m compileall -q universal_model_router.py universal_benchmark_exchange.py universal_benchmark_registry.py universal_router_cli.py tools
+          python -m compileall -q universal_model_router.py universal_benchmark_exchange.py universal_benchmark_registry.py universal_router_cli.py router tools
       - name: Verify the local-adapter boundary
         run: python verify_portable_router_boundary.py --root .
       - name: Generate a CI-only signed fixture bundle
         run: python tools/generate_ci_fixture_bundle.py --output .ci-fixtures
       - name: Verify fixture intake and routing non-qualification
         run: python tools/verify_ci_fixture_bundle.py --bundle .ci-fixtures
+      - name: Generate two-contributor installed-CLI fixture
+        run: python tools/generate_e2e_cli_fixture.py --output .ci-e2e
+      - name: Run installed CLI from intake through route selection
+        run: |
+          universal-router registry-init --root .ci-e2e-registry
+          universal-router export-contracts --output-dir .ci-contracts
+          universal-router ingest-contribution --contribution .ci-e2e/contribution-a.json --suite .ci-e2e/suite.json --public-keys .ci-e2e/public-keys.json --root .ci-e2e-registry
+          universal-router ingest-contribution --contribution .ci-e2e/contribution-b.json --suite .ci-e2e/suite.json --public-keys .ci-e2e/public-keys.json --root .ci-e2e-registry
+          universal-router ingest-acknowledgement --acknowledgement .ci-e2e/acknowledgement-a.json --contribution .ci-e2e/contribution-a.json --suite .ci-e2e/suite.json --public-keys .ci-e2e/public-keys.json --root .ci-e2e-registry
+          universal-router ingest-acknowledgement --acknowledgement .ci-e2e/acknowledgement-b.json --contribution .ci-e2e/contribution-b.json --suite .ci-e2e/suite.json --public-keys .ci-e2e/public-keys.json --root .ci-e2e-registry
+          universal-router compile-catalog --root .ci-e2e-registry --suite .ci-e2e/suite.json --generation 1 --compiled-at 2026-09-09T09:30:00Z --output .ci-e2e-catalog.json
+          universal-router route --request .ci-e2e/route-request.json --suite .ci-e2e/suite.json --catalog .ci-e2e-catalog.json --profile .ci-e2e/local-profile.json --output .ci-e2e-decision.json
+          python tools/verify_e2e_cli_fixture.py --bundle .ci-e2e --catalog .ci-e2e-catalog.json --decision .ci-e2e-decision.json
       - name: Build source and wheel distributions
         run: python -m build --no-isolation --outdir dist
       - name: Verify release contents
@@ -60,5 +73,5 @@ jobs:
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: "dist/*"
-      - name: Create immutable GitHub release
+      - name: Create versioned GitHub release
         run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
