@@ -14,6 +14,7 @@ include test_verify_portable_router_boundary.py
 include test_repository_contract.py
 include test_release_governance.py
 include test_end_to_end_cli.py
+include test_task_intake.py
 include SOURCE-MANIFEST.json
 recursive-include tools *.py
 recursive-include examples *.md *.json
@@ -23,5 +24,6 @@ include router/README.md
 include router/__init__.py
 include router/benchmark-capability-contract-v2.json
 include router/standard-task-suite-v1.json
+include router/task-intake-questionnaire-v1.json
 recursive-include router-schemas *.json
 global-exclude */.pytest_cache/*

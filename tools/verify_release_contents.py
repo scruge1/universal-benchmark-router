@@ -14,6 +14,7 @@ MODULES = {
     "universal_model_router.py",
     "universal_benchmark_exchange.py",
     "universal_benchmark_registry.py",
+    "universal_task_intake.py",
     "universal_router_cli.py",
 }
 WHEEL_ASSETS = {
@@ -21,6 +22,7 @@ WHEEL_ASSETS = {
     "router/__init__.py",
     "router/benchmark-capability-contract-v2.json",
     "router/standard-task-suite-v1.json",
+    "router/task-intake-questionnaire-v1.json",
 }
 SDIST_FILES = {
     "AGENTS.md",
@@ -39,6 +41,7 @@ SDIST_FILES = {
     "test_repository_contract.py",
     "test_release_governance.py",
     "test_end_to_end_cli.py",
+    "test_task_intake.py",
     "test_universal_benchmark_exchange.py",
     "test_universal_benchmark_registry.py",
     "test_universal_model_router.py",

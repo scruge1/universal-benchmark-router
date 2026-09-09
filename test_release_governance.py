@@ -19,9 +19,9 @@ class ReleaseGovernanceTests(unittest.TestCase):
 
     def test_tag_must_equal_project_version(self) -> None:
         version = project_version(ROOT / "pyproject.toml")
-        self.assertEqual("v0.2.0", verify_tag("v0.2.0", version)["tag"])
+        self.assertEqual("v0.3.0", verify_tag("v0.3.0", version)["tag"])
         with self.assertRaisesRegex(ValueError, "does not equal"):
-            verify_tag("v0.2.1", version)
+            verify_tag("v0.3.1", version)
 
     def test_release_rejects_pull_request_authority(self) -> None:
         source = WORKFLOW.read_text(encoding="utf-8") + "\npull_request:\n"

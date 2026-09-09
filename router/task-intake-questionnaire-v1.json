@@ -1,0 +1,82 @@
+{
+  "schema": "task-intake-questionnaire/v1",
+  "question_set_id": "universal-router-task-intake",
+  "version": "1.0.0",
+  "questions": [
+    {
+      "id": "job",
+      "prompt": "What do you mainly need the model to do?",
+      "why": "This selects only benchmark skills that match the job.",
+      "choices": [
+        {"value": "write_or_fix_code", "label": "Write or fix code", "supported": true},
+        {"value": "solve_math", "label": "Solve maths", "supported": true},
+        {"value": "reason_through_problem", "label": "Reason through a problem", "supported": true},
+        {"value": "use_tools_and_recover", "label": "Use tools and recover from failures", "supported": true},
+        {"value": "produce_exact_output", "label": "Return exact structured output", "supported": true},
+        {"value": "research_or_long_agent_work", "label": "Research or long agent work", "supported": false},
+        {"value": "not_sure", "label": "I am not sure", "supported": false}
+      ]
+    },
+    {
+      "id": "working_pattern",
+      "prompt": "How will the work arrive?",
+      "why": "This selects a measured request shape without asking for technical settings.",
+      "choices": [
+        {"value": "quick_interactive", "label": "Short questions, one at a time", "supported": true},
+        {"value": "deep_single_task", "label": "One deeper task at a time", "supported": true},
+        {"value": "several_tasks", "label": "Several tasks at once", "supported": true},
+        {"value": "repeated_heavy_use", "label": "A steady stream of work", "supported": true},
+        {"value": "large_input", "label": "Read a large amount before answering", "supported": true},
+        {"value": "not_sure", "label": "I am not sure", "supported": false}
+      ]
+    },
+    {
+      "id": "priority",
+      "prompt": "What matters most for this job?",
+      "why": "This sets the order used to compare eligible results.",
+      "choices": [
+        {"value": "quality", "label": "Best answer quality", "supported": true},
+        {"value": "fast_response", "label": "Fastest response", "supported": true},
+        {"value": "more_work", "label": "Complete more work at once", "supported": true},
+        {"value": "lower_resource_use", "label": "Use less power and hardware", "supported": true},
+        {"value": "balanced", "label": "A balanced result", "supported": true},
+        {"value": "not_sure", "label": "I am not sure", "supported": false}
+      ]
+    },
+    {
+      "id": "data_boundary",
+      "prompt": "Where may this work be processed?",
+      "why": "This prevents a result from crossing the data boundary you choose.",
+      "choices": [
+        {"value": "private", "label": "Only in my private environment", "supported": true},
+        {"value": "public", "label": "Public or non-sensitive environments are allowed", "supported": true},
+        {"value": "not_sure", "label": "I am not sure", "supported": false}
+      ]
+    }
+  ],
+  "compiler": {
+    "jobs": {
+      "write_or_fix_code": {"families": [{"family": "niche_coding", "weight": 3}, {"family": "instruction_following", "weight": 1}], "capabilities": ["chat"]},
+      "solve_math": {"families": [{"family": "mathematics", "weight": 3}, {"family": "reasoning", "weight": 1}], "capabilities": ["chat"]},
+      "reason_through_problem": {"families": [{"family": "reasoning", "weight": 3}, {"family": "instruction_following", "weight": 1}], "capabilities": ["chat"]},
+      "use_tools_and_recover": {"families": [{"family": "tool_recovery", "weight": 3}, {"family": "structured_output", "weight": 1}], "capabilities": ["chat", "tools", "structured_output"]},
+      "produce_exact_output": {"families": [{"family": "structured_output", "weight": 3}, {"family": "instruction_following", "weight": 1}], "capabilities": ["chat", "structured_output"]}
+    },
+    "working_patterns": {
+      "quick_interactive": "latency-short-c1",
+      "deep_single_task": "coding-mid-c1",
+      "several_tasks": "reasoning-mid-c4",
+      "repeated_heavy_use": "throughput-mid-c8",
+      "large_input": "long-context-c2"
+    },
+    "priorities": {
+      "quality": {"minimum_score": 0.85, "minimum_pass_rate": 0.8, "minimum_samples": 3, "objective_order": ["quality_score", "e2e_p95_ms", "goodput_tokens_per_second", "energy_joules_per_output_token", "gpu_count", "host_ram_bytes", "startup_seconds"]},
+      "fast_response": {"minimum_score": 0.65, "minimum_pass_rate": 0.65, "minimum_samples": 3, "objective_order": ["e2e_p95_ms", "quality_score", "goodput_tokens_per_second", "startup_seconds", "energy_joules_per_output_token", "gpu_count", "host_ram_bytes"]},
+      "more_work": {"minimum_score": 0.65, "minimum_pass_rate": 0.65, "minimum_samples": 3, "objective_order": ["goodput_tokens_per_second", "quality_score", "e2e_p95_ms", "energy_joules_per_output_token", "gpu_count", "host_ram_bytes", "startup_seconds"]},
+      "lower_resource_use": {"minimum_score": 0.7, "minimum_pass_rate": 0.7, "minimum_samples": 3, "objective_order": ["energy_joules_per_output_token", "gpu_count", "host_ram_bytes", "quality_score", "e2e_p95_ms", "goodput_tokens_per_second", "startup_seconds"]},
+      "balanced": {"minimum_score": 0.75, "minimum_pass_rate": 0.7, "minimum_samples": 3, "objective_order": ["quality_score", "goodput_tokens_per_second", "e2e_p95_ms", "energy_joules_per_output_token", "gpu_count", "host_ram_bytes", "startup_seconds"]}
+    },
+    "data_boundaries": {"private": "private", "public": "public"}
+  },
+  "authority": {"scope": "offline_task_intake_questions_only", "may_infer_confirmation": false, "may_contact_endpoint": false}
+}

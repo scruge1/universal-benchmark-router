@@ -14,6 +14,7 @@ PORTABLE_SOURCES = (
     "universal_model_router.py",
     "universal_benchmark_exchange.py",
     "universal_benchmark_registry.py",
+    "universal_task_intake.py",
     "universal_router_cli.py",
 )
 FORBIDDEN_IMPORT_ROOTS = {

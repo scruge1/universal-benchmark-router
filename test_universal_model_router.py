@@ -215,8 +215,8 @@ class UniversalModelRouterTests(unittest.TestCase):
 
     def test_router_schema_documents_parse_and_have_unique_ids(self) -> None:
         documents = [json.loads(path.read_text(encoding="utf-8")) for path in sorted(SCHEMA_DIR.glob("*.schema.json"))]
-        self.assertEqual(8, len(documents))
-        self.assertEqual(8, len({item["$id"] for item in documents}))
+        self.assertEqual(10, len(documents))
+        self.assertEqual(10, len({item["$id"] for item in documents}))
         self.assertTrue(all(item["$schema"].endswith("2020-12/schema") for item in documents))
 
     def test_standard_suite_hashes_and_required_families_pass(self) -> None:

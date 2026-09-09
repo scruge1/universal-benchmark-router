@@ -21,3 +21,9 @@ qualified entries. A one-contributor catalog also remains unqualified. The
 test suite creates two ephemeral contributors and independent acknowledgements
 to prove the positive route path without committing any private key or
 pretending that synthetic evidence is real community evidence.
+
+`task-answers.example.json` shows the four explicit answers required by the
+plain-language request compiler. Its question-set hash binds the exact packaged
+questionnaire. Re-export the contracts and update the hash when that versioned
+questionnaire changes. Never copy suggestions into `confirmed: true` without
+the user reviewing every answer.

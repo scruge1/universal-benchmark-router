@@ -43,6 +43,7 @@ class RepositoryContractTests(unittest.TestCase):
                     "universal_model_router.py",
                     "universal_benchmark_exchange.py",
                     "universal_benchmark_registry.py",
+                    "universal_task_intake.py",
                     "universal_router_cli.py",
                 ):
                     archive.writestr(module, "")
@@ -59,6 +60,7 @@ class RepositoryContractTests(unittest.TestCase):
                     "universal_model_router.py",
                     "universal_benchmark_exchange.py",
                     "universal_benchmark_registry.py",
+                    "universal_task_intake.py",
                     "universal_router_cli.py",
                 ):
                     archive.writestr(module, marker if module == "universal_model_router.py" else b"")
