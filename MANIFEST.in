@@ -1,5 +1,8 @@
 include LICENSE
 include AGENTS.md
+include GOVERNANCE.md
+include SECURITY.md
+include RELEASING.md
 include README.md
 include CONTRIBUTING-PORTABLE.md
 include requirements-ci.txt
@@ -9,9 +12,11 @@ include test_universal_benchmark_exchange.py
 include test_universal_benchmark_registry.py
 include test_verify_portable_router_boundary.py
 include test_repository_contract.py
+include test_release_governance.py
 include SOURCE-MANIFEST.json
 recursive-include tools *.py
 recursive-include examples *.md *.json
+recursive-include .github *.md *.yml
 prune router
 include router/README.md
 include router/benchmark-capability-contract-v2.json
