@@ -19,15 +19,19 @@ MODULES = {
 SDIST_FILES = {
     "AGENTS.md",
     "CONTRIBUTING-PORTABLE.md",
+    "GOVERNANCE.md",
     "LICENSE",
     "MANIFEST.in",
     "PKG-INFO",
     "README.md",
+    "RELEASING.md",
+    "SECURITY.md",
     "SOURCE-MANIFEST.json",
     "pyproject.toml",
     "requirements-ci.txt",
     "setup.cfg",
     "test_repository_contract.py",
+    "test_release_governance.py",
     "test_universal_benchmark_exchange.py",
     "test_universal_benchmark_registry.py",
     "test_universal_model_router.py",
@@ -35,7 +39,14 @@ SDIST_FILES = {
     "verify_portable_router_boundary.py",
     *MODULES,
 }
-SDIST_PREFIXES = ("examples/", "router/", "router-schemas/", "tools/", "universal_benchmark_router.egg-info/")
+SDIST_PREFIXES = (
+    ".github/",
+    "examples/",
+    "router/",
+    "router-schemas/",
+    "tools/",
+    "universal_benchmark_router.egg-info/",
+)
 FORBIDDEN_PATH_MARKERS = (
     "dashboard", "gpu_lighting", "lifecycle", "model_control", "paired-harness", "thermal", "workload"
 )

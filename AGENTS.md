@@ -9,12 +9,13 @@
   portable core.
 - Run the source-manifest, fixture, boundary, test, Ruff, package-build, and
   release-content gates before claiming a change is ready.
-- The controlling SSOT remains PRD-156 in the heterogeneous inference control
-  plane workspace until this repository receives its own accepted release
-  governance.
+- `GOVERNANCE.md` controls repository source and release changes.
+  `CONTRIBUTING-PORTABLE.md` controls benchmark-evidence submission. PRD-156
+  remains the upstream product and research authority.
 
 ## Agent prompts
 
 - Read `README.md` and `CONTRIBUTING-PORTABLE.md` before changing contracts.
+- Read `GOVERNANCE.md` and `RELEASING.md` before changing release paths.
 - Do not change sibling projects or local host adapters from this repository.
 - Do not treat CI success or a Git merge as benchmark-evidence promotion.

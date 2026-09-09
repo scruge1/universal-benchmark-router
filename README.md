@@ -23,7 +23,18 @@ rollback controls.
 
 ## Install
 
+Install from a checked-out source tree:
+
 ```console
+python -m pip install .
+```
+
+After a GitHub release exists, download its wheel and verify its provenance
+before installation:
+
+```console
+gh attestation verify universal_benchmark_router-0.1.0-py3-none-any.whl \
+  --repo scruge1/universal-benchmark-router
 python -m pip install universal_benchmark_router-0.1.0-py3-none-any.whl
 universal-router --help
 ```
@@ -73,3 +84,6 @@ can pass intake without becoming routing evidence. The fixture has one test
 contributor while routing requires two independent contributors. It contains
 no private key. CI builds and scans the wheel and source archive, but it does
 not publish either artifact.
+
+See `GOVERNANCE.md` for source, release, and evidence authority boundaries and
+`RELEASING.md` for the maintainer release procedure.
