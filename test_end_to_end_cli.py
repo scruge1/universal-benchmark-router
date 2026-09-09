@@ -72,11 +72,12 @@ class EndToEndCliTests(unittest.TestCase):
             )
         )
         self.assertEqual("exported", result["result"])
-        self.assertEqual(2, result["file_count"])
+        self.assertEqual(3, result["file_count"])
         repository = Path(__file__).parent / "router"
         for name in (
             "benchmark-capability-contract-v2.json",
             "standard-task-suite-v1.json",
+            "task-intake-questionnaire-v1.json",
         ):
             self.assertEqual((repository / name).read_bytes(), (output / name).read_bytes())
 

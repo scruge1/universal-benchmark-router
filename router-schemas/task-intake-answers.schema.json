@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-router:task-intake-answers:v1",
+  "title": "Confirmed plain-language task intake answers",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "intake_id", "question_set_id", "question_set_sha256", "description", "answers", "confirmed", "authority"],
+  "properties": {
+    "schema": {"const": "task-intake-answers/v1"},
+    "intake_id": {"type": "string", "minLength": 1},
+    "question_set_id": {"type": "string", "minLength": 1},
+    "question_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "description": {"type": "string", "maxLength": 4000},
+    "answers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["job", "working_pattern", "priority", "data_boundary"],
+      "properties": {
+        "job": {"type": "string"},
+        "working_pattern": {"type": "string"},
+        "priority": {"type": "string"},
+        "data_boundary": {"type": "string"}
+      }
+    },
+    "confirmed": {"const": true},
+    "authority": {"const": {"scope": "confirmed_task_intake_only", "may_contact_endpoint": false, "may_mutate_services": false}}
+  }
+}

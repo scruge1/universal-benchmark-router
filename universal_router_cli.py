@@ -20,12 +20,14 @@ from universal_benchmark_exchange import (
 )
 from universal_benchmark_registry import FileRegistry, RegistryError, sha256_bytes, strict_json_bytes
 from universal_model_router import canonical_sha256
+from universal_task_intake import compile_route_request, suggest_answers, validate_questionnaire
 
 
 ASSET_PACKAGE = "router"
 ASSET_FILES = (
     "benchmark-capability-contract-v2.json",
     "standard-task-suite-v1.json",
+    "task-intake-questionnaire-v1.json",
 )
 
 
@@ -114,6 +116,10 @@ def _common_files(parser: argparse.ArgumentParser, *names: str) -> None:
         parser.add_argument(f"--{name.replace('_', '-')}", type=Path, required=True)
 
 
+def _asset(name: str) -> Any:
+    return strict_json_bytes(importlib.resources.files(ASSET_PACKAGE).joinpath(name).read_bytes())
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="universal-router")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -123,6 +129,17 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--root", type=Path, required=True)
     export = commands.add_parser("export-contracts", help="Export the bundled suite and capability contract")
     export.add_argument("--output-dir", type=Path, required=True)
+    discover = commands.add_parser("discover", help="Show the four plain-language task questions")
+    discover.add_argument("--output", type=Path)
+    suggest = commands.add_parser("suggest", help="Suggest questionnaire answers from a task description")
+    suggest.add_argument("--description-file", type=Path, required=True)
+    suggest.add_argument("--output", type=Path)
+    request = commands.add_parser("compile-request", help="Compile confirmed task answers into a route request")
+    request.add_argument("--answers", type=Path, required=True)
+    request.add_argument("--suite", type=Path, required=True)
+    request.add_argument("--profile", type=Path, action="append", required=True)
+    request.add_argument("--as-of", required=True)
+    request.add_argument("--output", type=Path)
     catalog = commands.add_parser("compile-catalog", help="Compile accepted registry evidence into a catalog candidate")
     catalog.add_argument("--root", type=Path, required=True)
     catalog.add_argument("--suite", type=Path, required=True)
@@ -163,6 +180,21 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         return FileRegistry(args.root).audit()
     if args.command == "export-contracts":
         return _export_contracts(args.output_dir)
+    if args.command == "discover":
+        questionnaire = _asset("task-intake-questionnaire-v1.json")
+        validate_questionnaire(questionnaire)
+        return _result_or_output(questionnaire, args.output, "task_intake_questionnaire")
+    if args.command == "suggest":
+        questionnaire = _asset("task-intake-questionnaire-v1.json")
+        description = args.description_file.read_text(encoding="utf-8")
+        return _result_or_output(suggest_answers(description, questionnaire), args.output, "task_intake_suggestions")
+    if args.command == "compile-request":
+        questionnaire = _asset("task-intake-questionnaire-v1.json")
+        answers, _ = _load(args.answers)
+        suite, _ = _load(args.suite)
+        profiles = [_load(path)[0] for path in args.profile]
+        request = compile_route_request(answers, questionnaire, suite, profiles, as_of=args.as_of)
+        return _result_or_output(request, args.output, "model_route_request")
     if args.command == "compile-catalog":
         if args.generation < 1:
             raise RegistryError("generation must be a positive integer")

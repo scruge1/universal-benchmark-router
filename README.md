@@ -4,7 +4,7 @@ This package turns saved, standardized model tests into evidence-backed model
 and configuration recommendations. It is independent of any agent harness,
 dashboard, inference engine, or GPU layout.
 
-It provides four parts:
+It provides five parts:
 
 - Exact contracts for model variants, fine-tunes, quantization, context,
   sampling, engine settings, hardware, placement, offload, power, workload,
@@ -15,6 +15,8 @@ It provides four parts:
   missing dependencies, invalid signatures, and changed stored bytes.
 - A deterministic router that answers a structured task and configuration
   request from eligible saved evidence.
+- A four-question plain-language intake that compiles confirmed choices into
+  that exact structured request without guessing hardware or hidden intent.
 
 It does not download or load models, call inference endpoints, operate GPUs,
 control a dashboard, or publish a route. A local adapter can consume a saved
@@ -33,9 +35,9 @@ After a GitHub release exists, download its wheel and verify its provenance
 before installation:
 
 ```console
-gh attestation verify universal_benchmark_router-0.2.0-py3-none-any.whl \
+gh attestation verify universal_benchmark_router-0.3.0-py3-none-any.whl \
   --repo scruge1/universal-benchmark-router
-python -m pip install universal_benchmark_router-0.2.0-py3-none-any.whl
+python -m pip install universal_benchmark_router-0.3.0-py3-none-any.whl
 universal-router --help
 ```
 
@@ -46,6 +48,43 @@ Export the bundled standard suite and capability contract after installation:
 ```console
 universal-router export-contracts --output-dir ./router-contracts
 ```
+
+## Describe the job in plain language
+
+Show the four questions and their stable answer values:
+
+```console
+universal-router discover
+```
+
+The optional suggestion command reads a task description from a file. Its
+output always says `needs_confirmation: true`; a suggestion cannot become a
+route request by itself:
+
+```console
+universal-router suggest --description-file ./task.txt
+```
+
+After the user confirms all four answers, compile them against the exact suite
+and the saved profiles available to that caller:
+
+```console
+universal-router compile-request \
+  --answers ./task-answers.json \
+  --suite ./router-contracts/standard-task-suite-v1.json \
+  --profile ./rig-01-profile.json \
+  --as-of 2026-09-09T10:00:00Z \
+  --output ./model-route-request.json
+```
+
+Start from `examples/task-answers.example.json`. Its question-set hash must
+match the questionnaire exported by the installed package.
+
+The compiler derives workload and resource ceilings from measured values in
+those validated profiles. It rejects uncertain answers, unsupported job types,
+stale profiles, and workloads none of the profiles measured. The current suite
+does not yet qualify research or long-horizon agent work, so it says that
+directly instead of substituting a weaker benchmark.
 
 ## Validate and store evidence
 

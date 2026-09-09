@@ -4,6 +4,10 @@
 call an endpoint, inspect hardware, start a model, change placement, or publish
 a route.
 
+`universal_task_intake.py` validates the packaged four-question intake,
+produces non-authoritative description hints, and compiles confirmed choices
+against validated saved profiles into the existing inert route request.
+
 Inputs:
 
 - One exact `model-task-suite/v1`.

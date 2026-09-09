@@ -1,1 +1,1 @@
-"""Bundled public task suite and capability contract assets."""
+"""Bundled public task, capability, and plain-language intake contracts."""

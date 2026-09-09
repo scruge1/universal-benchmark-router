@@ -1,0 +1,19 @@
+{
+  "schema": "task-intake-answers/v1",
+  "intake_id": "my-private-maths-job",
+  "question_set_id": "universal-router-task-intake",
+  "question_set_sha256": "c8bed71ab934216effc0015814fcf4ab7c7114d39d2edbb2a49dda0f4ca29a34",
+  "description": "Solve exact calculations for a private batch job.",
+  "answers": {
+    "job": "solve_math",
+    "working_pattern": "repeated_heavy_use",
+    "priority": "balanced",
+    "data_boundary": "private"
+  },
+  "confirmed": true,
+  "authority": {
+    "scope": "confirmed_task_intake_only",
+    "may_contact_endpoint": false,
+    "may_mutate_services": false
+  }
+}
