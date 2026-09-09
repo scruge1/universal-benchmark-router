@@ -33,13 +33,19 @@ After a GitHub release exists, download its wheel and verify its provenance
 before installation:
 
 ```console
-gh attestation verify universal_benchmark_router-0.1.0-py3-none-any.whl \
+gh attestation verify universal_benchmark_router-0.2.0-py3-none-any.whl \
   --repo scruge1/universal-benchmark-router
-python -m pip install universal_benchmark_router-0.1.0-py3-none-any.whl
+python -m pip install universal_benchmark_router-0.2.0-py3-none-any.whl
 universal-router --help
 ```
 
 The package requires Python 3.10 or newer and `cryptography` 41 or newer.
+
+Export the bundled standard suite and capability contract after installation:
+
+```console
+universal-router export-contracts --output-dir ./router-contracts
+```
 
 ## Validate and store evidence
 
@@ -65,6 +71,39 @@ be ingested before their result and acknowledgement. Run
 
 Every command returns compact JSON. A rejection exits with status 2 and writes
 a structured error to standard error.
+
+## Compile evidence and select a route
+
+Compile only accepted contributions and acknowledgements from an audited
+registry. The timestamp is explicit so the output is deterministic and
+reviewable:
+
+```console
+universal-router compile-catalog \
+  --root ./evidence-registry \
+  --suite ./router-contracts/standard-task-suite-v1.json \
+  --generation 1 \
+  --compiled-at 2026-09-09T10:00:00Z \
+  --output ./catalog-1.json
+```
+
+Join qualified community task evidence to saved performance profiles for the
+hosts available to the caller:
+
+```console
+universal-router route \
+  --request ./model-route-request.json \
+  --suite ./router-contracts/standard-task-suite-v1.json \
+  --catalog ./catalog-1.json \
+  --profile ./rig-01-profile.json \
+  --profile ./rig-02-profile.json \
+  --output ./route-decision.json
+```
+
+The decision says `selected` or `no_eligible_route` and lists every exclusion.
+It is saved-data evidence only. It does not contact the selected endpoint,
+load a model, or publish a live route. Output paths are absent-only so a retry
+cannot overwrite an earlier candidate.
 
 See `CONTRIBUTING-PORTABLE.md` for the complete order and trust rules.
 

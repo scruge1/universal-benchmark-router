@@ -15,13 +15,13 @@ class ReleaseGovernanceTests(unittest.TestCase):
     def test_repository_governance_passes(self) -> None:
         result = verify_repository(ROOT)
         self.assertEqual("verified", result["result"])
-        self.assertEqual(11, result["required_step_count"])
+        self.assertEqual(13, result["required_step_count"])
 
     def test_tag_must_equal_project_version(self) -> None:
         version = project_version(ROOT / "pyproject.toml")
-        self.assertEqual("v0.1.0", verify_tag("v0.1.0", version)["tag"])
+        self.assertEqual("v0.2.0", verify_tag("v0.2.0", version)["tag"])
         with self.assertRaisesRegex(ValueError, "does not equal"):
-            verify_tag("v0.1.1", version)
+            verify_tag("v0.2.1", version)
 
     def test_release_rejects_pull_request_authority(self) -> None:
         source = WORKFLOW.read_text(encoding="utf-8") + "\npull_request:\n"

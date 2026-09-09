@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "universal-benchmark-router"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline evidence registry and configuration router for portable model benchmarks"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,12 +24,16 @@ classifiers = [
 universal-router = "universal_router_cli:main"
 
 [tool.setuptools]
+packages = ["router"]
 py-modules = [
   "universal_model_router",
   "universal_benchmark_exchange",
   "universal_benchmark_registry",
   "universal_router_cli",
 ]
+
+[tool.setuptools.package-data]
+router = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["."]

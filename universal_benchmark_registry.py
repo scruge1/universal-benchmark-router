@@ -365,6 +365,25 @@ class FileRegistry:
             raise RegistryError("object integrity failure")
         return strict_json_bytes(value)
 
+    def accepted_documents(self, document_type: str) -> list[Any]:
+        """Return one validated snapshot of accepted documents by type."""
+        if document_type not in {"request", "result", "contribution", "acknowledgement"}:
+            raise RegistryError(f"unsupported document type: {document_type}")
+        self.audit()
+        claims: list[tuple[str, str]] = []
+        for path in sorted((self.root / "claims" / "sha256").glob("*/*.json")):
+            self._reject_link(path)
+            claim = strict_json_bytes(path.read_bytes())
+            if claim["document_type"] == document_type:
+                claims.append((claim["identity"], claim["object_sha256"]))
+        documents: list[Any] = []
+        for identity, expected_sha256 in sorted(claims):
+            document = self.read(document_type, identity)
+            if canonical_sha256(document) != expected_sha256:
+                raise RegistryError("accepted document snapshot drift")
+            documents.append(document)
+        return documents
+
     def audit(self) -> dict[str, Any]:
         claim_root = self.root / "claims" / "sha256"
         claims = sorted(claim_root.glob("*/*.json"))

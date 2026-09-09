@@ -2,8 +2,8 @@
 
 - This repository is the portable benchmark evidence registry and
   configuration router. It is independent of Adam's dashboard and rig.
-- Treat `SOURCE-MANIFEST.json`, the four `universal_*.py` modules, the router
-  contracts, schemas, tests, and `CONTRIBUTING-PORTABLE.md` as canonical.
+- Treat `SOURCE-MANIFEST.json`, the four `universal_*.py` modules, the packaged
+  router contracts, schemas, tests, and `CONTRIBUTING-PORTABLE.md` as canonical.
 - Evidence intake is offline and append-only. Never add endpoint calls, model
   loading, GPU control, trusted-key enrollment, or publication authority to the
   portable core.

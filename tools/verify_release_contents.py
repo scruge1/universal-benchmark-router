@@ -16,6 +16,12 @@ MODULES = {
     "universal_benchmark_registry.py",
     "universal_router_cli.py",
 }
+WHEEL_ASSETS = {
+    "router/README.md",
+    "router/__init__.py",
+    "router/benchmark-capability-contract-v2.json",
+    "router/standard-task-suite-v1.json",
+}
 SDIST_FILES = {
     "AGENTS.md",
     "CONTRIBUTING-PORTABLE.md",
@@ -32,6 +38,7 @@ SDIST_FILES = {
     "setup.cfg",
     "test_repository_contract.py",
     "test_release_governance.py",
+    "test_end_to_end_cli.py",
     "test_universal_benchmark_exchange.py",
     "test_universal_benchmark_registry.py",
     "test_universal_model_router.py",
@@ -71,13 +78,15 @@ def inspect_wheel(path: Path) -> int:
         for name in files:
             if any(marker in name for marker in FORBIDDEN_PATH_MARKERS):
                 raise ValueError(f"forbidden wheel path: {name}")
-            if name not in MODULES and ".dist-info/" not in name:
+            if name not in MODULES and name not in WHEEL_ASSETS and ".dist-info/" not in name:
                 raise ValueError(f"unexpected wheel path: {name}")
             value = archive.read(name)
             if _contains_private_key(value):
                 raise ValueError(f"private key material in wheel: {name}")
         if not MODULES <= set(files):
             raise ValueError("wheel is missing a portable module")
+        if not WHEEL_ASSETS <= set(files):
+            raise ValueError("wheel is missing a bundled contract asset")
         return len(files)
 
 

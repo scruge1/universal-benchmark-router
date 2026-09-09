@@ -3,18 +3,30 @@
 from __future__ import annotations
 
 import argparse
+import importlib.resources
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
 from universal_benchmark_exchange import (
+    compile_catalog,
+    select_route_with_universal_evidence,
     verify_acknowledgement,
     verify_benchmark_request,
     verify_contribution,
     verify_result_envelope,
 )
 from universal_benchmark_registry import FileRegistry, RegistryError, sha256_bytes, strict_json_bytes
+from universal_model_router import canonical_sha256
+
+
+ASSET_PACKAGE = "router"
+ASSET_FILES = (
+    "benchmark-capability-contract-v2.json",
+    "standard-task-suite-v1.json",
+)
 
 
 def _load(path: Path) -> tuple[Any, str]:
@@ -24,6 +36,77 @@ def _load(path: Path) -> tuple[Any, str]:
 
 def _emit(value: Any, *, stream: Any = sys.stdout) -> None:
     print(json.dumps(value, sort_keys=True, separators=(",", ":")), file=stream)
+
+
+def _write_absent(path: Path, value: Any) -> dict[str, Any]:
+    parent = path.parent.resolve(strict=True)
+    target = parent / path.name
+    if target.exists() or target.is_symlink():
+        raise RegistryError(f"output must be absent: {target}")
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    descriptor = os.open(target, flags, 0o444)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except BaseException:
+        target.unlink(missing_ok=True)
+        raise
+    return {"path": str(target), "sha256": sha256_bytes(payload)}
+
+
+def _result_or_output(value: dict[str, Any], output: Path | None, document_type: str) -> dict[str, Any]:
+    if output is None:
+        return value
+    saved = _write_absent(output, value)
+    return {
+        "result": "saved",
+        "document_type": document_type,
+        **saved,
+        "authority": "offline_saved_candidate_only",
+    }
+
+
+def _export_contracts(output_dir: Path) -> dict[str, Any]:
+    if output_dir.exists() or output_dir.is_symlink():
+        raise RegistryError(f"output directory must be absent: {output_dir}")
+    output_dir.mkdir(parents=False)
+    hashes: dict[str, str] = {}
+    try:
+        root = importlib.resources.files(ASSET_PACKAGE)
+        for relative in ASSET_FILES:
+            source = root.joinpath(*relative.split("/"))
+            payload = source.read_bytes()
+            target = output_dir.joinpath(*relative.split("/"))
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            hashes[relative] = sha256_bytes(payload)
+        manifest = {
+            "schema": "universal-benchmark-exported-contracts/v1",
+            "files": dict(sorted(hashes.items())),
+            "authority": "read_only_contract_assets_only",
+        }
+        manifest_bytes = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        (output_dir / "manifest.json").write_bytes(manifest_bytes)
+    except BaseException:
+        for child in sorted(output_dir.rglob("*"), reverse=True):
+            if child.is_file():
+                child.unlink()
+            elif child.is_dir():
+                child.rmdir()
+        output_dir.rmdir()
+        raise
+    return {
+        "result": "exported",
+        "output_dir": str(output_dir.resolve()),
+        "file_count": len(hashes),
+        "manifest_sha256": sha256_bytes(manifest_bytes),
+        "authority": "read_only_contract_assets_only",
+    }
 
 
 def _common_files(parser: argparse.ArgumentParser, *names: str) -> None:
@@ -38,6 +121,20 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("--root", type=Path, required=True)
     audit = commands.add_parser("registry-audit")
     audit.add_argument("--root", type=Path, required=True)
+    export = commands.add_parser("export-contracts", help="Export the bundled suite and capability contract")
+    export.add_argument("--output-dir", type=Path, required=True)
+    catalog = commands.add_parser("compile-catalog", help="Compile accepted registry evidence into a catalog candidate")
+    catalog.add_argument("--root", type=Path, required=True)
+    catalog.add_argument("--suite", type=Path, required=True)
+    catalog.add_argument("--generation", type=int, required=True)
+    catalog.add_argument("--compiled-at", required=True)
+    catalog.add_argument("--output", type=Path)
+    route = commands.add_parser("route", help="Select from saved local profiles using a universal evidence catalog")
+    route.add_argument("--request", type=Path, required=True)
+    route.add_argument("--suite", type=Path, required=True)
+    route.add_argument("--catalog", type=Path, required=True)
+    route.add_argument("--profile", type=Path, action="append", required=True)
+    route.add_argument("--output", type=Path)
     for action in ("validate", "ingest"):
         request = commands.add_parser(f"{action}-request")
         _common_files(request, "request", "capability_contract", "public_keys")
@@ -64,6 +161,38 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         return {"result": "initialized", "root": str(registry.root), "authority": "offline_saved_evidence_only"}
     if args.command == "registry-audit":
         return FileRegistry(args.root).audit()
+    if args.command == "export-contracts":
+        return _export_contracts(args.output_dir)
+    if args.command == "compile-catalog":
+        if args.generation < 1:
+            raise RegistryError("generation must be a positive integer")
+        suite, _ = _load(args.suite)
+        suite_sha256 = canonical_sha256(suite)
+        registry = FileRegistry(args.root)
+        contributions = [
+            item for item in registry.accepted_documents("contribution")
+            if item["suite_id"] == suite["suite_id"] and item["suite_sha256"] == suite_sha256
+        ]
+        submission_ids = {item["submission_id"] for item in contributions}
+        acknowledgements = [
+            item for item in registry.accepted_documents("acknowledgement")
+            if item["submission_id"] in submission_ids
+        ]
+        catalog = compile_catalog(
+            suite,
+            contributions,
+            acknowledgements,
+            generation=args.generation,
+            compiled_at=args.compiled_at,
+        )
+        return _result_or_output(catalog, args.output, "universal_model_evidence_catalog")
+    if args.command == "route":
+        request, _ = _load(args.request)
+        suite, _ = _load(args.suite)
+        catalog, _ = _load(args.catalog)
+        profiles = [_load(path)[0] for path in args.profile]
+        decision = select_route_with_universal_evidence(request, profiles, suite, catalog)
+        return _result_or_output(decision, args.output, "universal_route_decision")
     action, document_type = args.command.split("-", 1)
     public_keys, _ = _load(args.public_keys)
     loaded = {name: _load(getattr(args, name)) for name in vars(args) if name not in {"command", "root", "public_keys"}}

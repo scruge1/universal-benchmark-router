@@ -34,6 +34,12 @@ offload, power, workload, quality checks, and restoration result are recorded.
 8. Audit the registry. Build catalogs and route decisions only from accepted
    records that meet the multi-contributor policy.
 
+Export the versioned public inputs from the installed wheel:
+
+```text
+universal-router export-contracts --output-dir ./router-contracts
+```
+
 ## Local commands
 
 Each document type has `validate-*` and `ingest-*` commands:
@@ -49,6 +55,12 @@ Use `universal-router <command> --help` for its exact file arguments. Validation
 does not write. Intake stores canonical JSON by SHA-256, records an acceptance
 event, and commits one exclusive identity claim. Exact replay and same-identity
 conflict are errors.
+
+After intake, `compile-catalog` reads accepted registry objects only. It filters
+them by the exact suite ID and SHA-256 and requires at least two distinct
+contributors before an evidence cell becomes routing-qualified. `route` joins
+that qualified task evidence to caller-supplied saved system profiles. Neither
+command contacts a host or promotes its output.
 
 ## Pull-request review
 

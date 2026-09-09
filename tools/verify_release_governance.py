@@ -21,10 +21,12 @@ REQUIRED_STEPS = (
     "Verify the local-adapter boundary",
     "Generate a CI-only signed fixture bundle",
     "Verify fixture intake and routing non-qualification",
+    "Generate two-contributor installed-CLI fixture",
+    "Run installed CLI from intake through route selection",
     "Build source and wheel distributions",
     "Verify release contents",
     "Attest exact release artifacts",
-    "Create immutable GitHub release",
+    "Create versioned GitHub release",
 )
 
 
